@@ -268,3 +268,86 @@ canvas {
     80% { opacity: 1; transform: scale(1); }
     100% { opacity: 0; transform: scale(1.2); }
 }
+
+/* --- MOBILE CONTROLS --- */
+#mobile-controls {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    display: none; /* Shown via JS detection */
+}
+
+@media (pointer: coarse) {
+    #mobile-controls {
+        display: block;
+    }
+    #hud {
+        padding: 20px;
+    }
+    .health-system {
+        width: 200px;
+    }
+}
+
+#move-joystick-container, #shoot-joystick-container {
+    position: absolute;
+    bottom: 40px;
+    width: 150px;
+    height: 150px;
+    pointer-events: auto;
+}
+
+#move-joystick-container { left: 40px; }
+#shoot-joystick-container { right: 40px; }
+
+#move-joystick-base, #shoot-joystick-base {
+    width: 100px;
+    height: 100px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(0, 242, 255, 0.2);
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    backdrop-filter: blur(5px);
+}
+
+#move-joystick-handle, #shoot-joystick-handle {
+    width: 40px;
+    height: 40px;
+    background: var(--neon-blue);
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 15px var(--neon-blue);
+}
+
+#shoot-joystick-handle {
+    background: var(--neon-purple);
+    box-shadow: 0 0 15px var(--neon-purple);
+}
+
+#mobile-dash-btn {
+    position: absolute;
+    bottom: 160px;
+    right: 40px;
+    width: 80px;
+    height: 80px;
+    background: var(--glass-bg);
+    border: 2px solid var(--neon-red);
+    border-radius: 50%;
+    color: var(--neon-red);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 900;
+    pointer-events: auto;
+    backdrop-filter: blur(5px);
+}

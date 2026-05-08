@@ -32,6 +32,10 @@ const STATE = {
     isGameOver: false,
     keys: {},
     mouse: { x: 0, y: 0, pressed: false },
+    touch: {
+        move: { x: 0, y: 0, active: false },
+        shoot: { x: 0, y: 0, active: false, angle: 0 }
+    },
     screenShake: 0,
     lastTime: 0,
     spawnTimer: 0,
@@ -110,6 +114,64 @@ class Debris {
     }
 }
 
+class Joystick {
+    constructor(baseId, handleId) {
+        this.base = document.getElementById(baseId);
+        this.handle = document.getElementById(handleId);
+        this.active = false;
+        this.value = { x: 0, y: 0 };
+        this.angle = 0;
+        this.radius = 50;
+
+        this.base.addEventListener('touchstart', (e) => this.start(e), { passive: false });
+        window.addEventListener('touchmove', (e) => this.move(e), { passive: false });
+        window.addEventListener('touchend', (e) => this.end(e));
+    }
+
+    start(e) {
+        e.preventDefault();
+        this.active = true;
+        this.move(e);
+    }
+
+    move(e) {
+        if (!this.active) return;
+        e.preventDefault();
+        const touch = Array.from(e.touches).find(t => {
+            const rect = this.base.getBoundingClientRect();
+            return t.clientX > rect.left - 50 && t.clientX < rect.right + 50 &&
+                   t.clientY > rect.top - 50 && t.clientY < rect.bottom + 50;
+        });
+
+        if (touch) {
+            const rect = this.base.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            
+            let dx = touch.clientX - centerX;
+            let dy = touch.clientY - centerY;
+            const dist = Math.hypot(dx, dy);
+            
+            this.angle = Math.atan2(dy, dx);
+            
+            if (dist > this.radius) {
+                dx = (dx / dist) * this.radius;
+                dy = (dy / dist) * this.radius;
+            }
+
+            this.value.x = dx / this.radius;
+            this.value.y = dy / this.radius;
+            this.handle.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+        }
+    }
+
+    end() {
+        this.active = false;
+        this.value = { x: 0, y: 0 };
+        this.handle.style.transform = `translate(-50%, -50%)`;
+    }
+}
+
 function spawnExplosion(x, y, color, count = 15) {
     STATE.debris.push(new Debris(x, y, color));
     for (let i = 0; i < count; i++) {
@@ -147,8 +209,12 @@ class Player {
     update(dt) {
         if (this.invulnerable > 0) this.invulnerable -= dt;
 
-        // Mouse Angle
-        this.angle = angleBetween(this.x, this.y, STATE.mouse.x, STATE.mouse.y);
+        // Mouse / Touch Angle
+        if (STATE.touch.shoot.active) {
+            this.angle = STATE.touch.shoot.angle;
+        } else {
+            this.angle = angleBetween(this.x, this.y, STATE.mouse.x, STATE.mouse.y);
+        }
 
         // Movement
         let mx = 0, my = 0;
@@ -157,10 +223,18 @@ class Player {
         if (STATE.keys['a'] || STATE.keys['ArrowLeft']) mx -= 1;
         if (STATE.keys['d'] || STATE.keys['ArrowRight']) mx += 1;
 
+        // Joystick Movement Override
+        if (STATE.touch.move.active) {
+            mx = STATE.touch.move.x;
+            my = STATE.touch.move.y;
+        }
+
         if (mx !== 0 || my !== 0) {
             const mag = Math.hypot(mx, my);
-            mx /= mag;
-            my /= mag;
+            if (mag > 1) { // Normalize only if keyboard
+                mx /= mag;
+                my /= mag;
+            }
 
             if (!this.isDashing) {
                 this.x += mx * CONFIG.PLAYER_SPEED;
@@ -205,7 +279,7 @@ class Player {
         this.y = Math.max(this.size, Math.min(canvas.height - this.size, this.y));
 
         // Attacking
-        if (STATE.mouse.pressed && this.attackTimer <= 0) {
+        if ((STATE.mouse.pressed || STATE.touch.shoot.active) && this.attackTimer <= 0) {
             this.attack();
             this.attackTimer = 150; // Attack rate
         }
@@ -384,6 +458,34 @@ function init() {
     });
     window.addEventListener('mousedown', () => STATE.mouse.pressed = true);
     window.addEventListener('mouseup', () => STATE.mouse.pressed = false);
+
+    // Initialize Joysticks
+    if ('ontouchstart' in window) {
+        const moveJoystick = new Joystick('move-joystick-base', 'move-joystick-handle');
+        const shootJoystick = new Joystick('shoot-joystick-base', 'shoot-joystick-handle');
+        
+        // Sync with STATE
+        const syncJoysticks = () => {
+            STATE.touch.move.active = moveJoystick.active;
+            STATE.touch.move.x = moveJoystick.value.x;
+            STATE.touch.move.y = moveJoystick.value.y;
+            
+            STATE.touch.shoot.active = shootJoystick.active;
+            STATE.touch.shoot.angle = shootJoystick.angle;
+            
+            requestAnimationFrame(syncJoysticks);
+        };
+        syncJoysticks();
+
+        // Mobile Dash Button
+        const dashBtn = document.getElementById('mobile-dash-btn');
+        dashBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            STATE.keys['Shift'] = true;
+            setTimeout(() => STATE.keys['Shift'] = false, 50);
+        });
+        dashBtn.addEventListener('contextmenu', (e) => e.preventDefault());
+    }
 
     STATE.player = new Player();
     

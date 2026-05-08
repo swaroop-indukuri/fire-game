@@ -2,10 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>CYBER-STORM | High-Intensity Action</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;500;800&display=swap" rel="stylesheet">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
 </head>
 <body>
     <div id="game-container">
@@ -52,6 +54,15 @@
                     <div class="loading-fill"></div>
                 </div>
             </div>
+        <!-- Mobile Controls (Visible on touch) -->
+        <div id="mobile-controls">
+            <div id="move-joystick-container">
+                <div id="move-joystick-base"><div id="move-joystick-handle"></div></div>
+            </div>
+            <div id="shoot-joystick-container">
+                <div id="shoot-joystick-base"><div id="shoot-joystick-handle"></div></div>
+            </div>
+            <div id="mobile-dash-btn">DASH</div>
         </div>
     </div>
 
