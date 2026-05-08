@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CYBER-STORM | High-Intensity Action</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;500;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="game-container">
+        <canvas id="gameCanvas"></canvas>
+        
+        <!-- HUD Overlay -->
+        <div id="hud">
+            <div class="top-bar">
+                <div class="level-indicator">
+                    <span class="label">SECTOR</span>
+                    <span id="level-value">01</span>
+                </div>
+                <div class="score-container">
+                    <span id="score-value">000,000</span>
+                </div>
+            </div>
+
+            <div class="bottom-bar">
+                <div class="health-system">
+                    <div class="health-bar-bg">
+                        <div id="health-bar-fill"></div>
+                    </div>
+                    <div class="health-text">INTEGRITY: <span id="health-percent">100%</span></div>
+                </div>
+                <div class="ability-system">
+                    <div class="ability" id="dash-ability">
+                        <div class="key">SHIFT</div>
+                        <div class="ability-icon">DASH</div>
+                        <div class="cooldown-overlay" id="dash-cooldown"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notification Overlay -->
+        <div id="notifications"></div>
+
+        <!-- Death/Respawn Overlay -->
+        <div id="death-overlay" class="hidden">
+            <div class="death-content">
+                <h1 class="glitch-text">SYSTEM FAILURE</h1>
+                <p>REBOOTING ENERGETIC CORE...</p>
+                <div class="loading-bar">
+                    <div class="loading-fill"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="main.js"></script>
+</body>
+</html>
